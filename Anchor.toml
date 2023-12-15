@@ -6,6 +6,8 @@ skip-lint = false
 
 [programs.localnet]
 chainy = "34CUrzPkzNS4hV3u8CXMsM73pXnv3FFPHCk1WkVBcRwY"
+player = "3XbWhap1xiE9zmUu2nqtv3NUVX1RVeXnvaMvUVaw3Lg5"
+system-movement = "DNbUAbXqL2C43xpBYhTZVv7GncoUb83CqWVhsj9BqWsJ"
 tile = "DfMmQL1ozAyHTkNMEDBXWi7CV8AutqXUcrGJR4BvwmUS"
 
 [registry]
@@ -18,6 +20,10 @@ wallet = "/Users/gabrielepicco/.config/solana/id.json"
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
 
+[test]
+startup_wait = 5000
+shutdown_wait = 2000
+upgradeable = false
 
 [[test.genesis]]
 address = "WorLD15A7CrDwLcLy4fRqtaTb9fbd8o8iqiEMUDse2n"

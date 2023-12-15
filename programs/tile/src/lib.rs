@@ -12,6 +12,6 @@ pub mod tile {
 #[bolt_account(component_id = "tile")]
 #[derive(Copy)]
 pub struct Tile {
-    pub x: u64,
-    pub y: u64,
+    pub x: i64,
+    pub y: i64,
 }

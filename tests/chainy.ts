@@ -4,6 +4,7 @@ import {Chainy} from "../target/types/chainy";
 import {Tile} from "../target/types/tile";
 import {Player} from "../target/types/player";
 import {SystemMovement} from "../target/types/system_movement";
+import {UpdatePlayer} from "../target/types/update_player";
 import {
     createAddEntityInstruction, createApplyInstruction, createInitializeComponentInstruction,
     createInitializeNewWorldInstruction,
@@ -40,6 +41,7 @@ describe("chainy", () => {
     const tileComponent = anchor.workspace.Tile as Program<Tile>;
     const playerComponent = anchor.workspace.Player as Program<Player>;
     const systemMovement = anchor.workspace.SystemMovement as Program<SystemMovement>;
+    const updatePlayer = anchor.workspace.UpdatePlayer as Program<UpdatePlayer>;
 
     // Constants used to test the program.
     const registryPda = FindWorldRegistryPda();
@@ -168,7 +170,31 @@ describe("chainy", () => {
             );
 
         expect(playerData.x.toNumber()).to.equal(0);
-        expect(playerData.y.toNumber()).to.equal(1);
+        expect(playerData.y.toNumber()).to.gt(0);
+    });
+
+    it("Update the player account", async () => {
+
+        const args = {
+            publickey: provider.wallet.publicKey.toBase58(),
+        };
+
+        let applySystemIx = createApplyInstruction({
+            componentProgram: playerComponent.programId,
+            boltSystem: updatePlayer.programId,
+            boltComponent: playerDataPda,
+        }, { args: serializeArgs(args) });
+
+        const tx = new anchor.web3.Transaction().add(applySystemIx);
+        await provider.sendAndConfirm(tx, [], {skipPreflight: true});
+
+        const playerData =
+            await playerComponent.account.player.fetch(
+                playerDataPda
+            );
+
+        expect(playerData.x.toNumber()).to.equal(0);
+        expect(playerData.y.toNumber()).to.gt(0);
     });
 
 });

@@ -11,11 +11,14 @@ pub mod system_movement {
     pub fn execute(ctx: Context<Component>, args_p: Vec<u8>) -> Result<Position> {
         let args = parse_args::<Args>(&args_p);
 
+        let clock = Clock::get()?;
+        let delta = 1 + (clock.unix_timestamp.unsigned_abs() % 6) as i64;
+
         let (dx, dy) = match args.direction {
-            Direction::Left => (-1, 0),
-            Direction::Right => (1, 0),
-            Direction::Up => (0, 1),
-            Direction::Down => (0, -1),
+            Direction::Left => (-delta, 0),
+            Direction::Right => (delta, 0),
+            Direction::Up => (0, delta),
+            Direction::Down => (0, -delta),
         };
 
         ctx.accounts.position.x += dx;

@@ -1420,9 +1420,9 @@ checksum = "4dccd0940a2dcdf68d092b8cbab7dc0ad8fa938bf95787e1b916b0e3d0e8e970"
 
 [[package]]
 name = "solana-frozen-abi"
-version = "1.17.9"
+version = "1.17.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3392accc42141b4a059942b8dccc7597cad8ab1975f7920321e6b4716f778cf7"
+checksum = "e9cbd5ffa411ac153a68a7c5529b80394e85fc3f8177923bddaecbd358896587"
 dependencies = [
  "ahash 0.8.6",
  "blake3",
@@ -1450,9 +1450,9 @@ dependencies = [
 
 [[package]]
 name = "solana-frozen-abi-macro"
-version = "1.17.9"
+version = "1.17.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "49b164b02a08299113aa7cc34beaa2f85eb5528f427f964be17383d7631dc168"
+checksum = "22ac7a28f032318edf69a8b2ca9717d6a0e50275d5880b7febd357c7289d6c55"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1462,9 +1462,9 @@ dependencies = [
 
 [[package]]
 name = "solana-program"
-version = "1.17.9"
+version = "1.17.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "500718eb4e0b133f4999c875bda6d1d097d1ca85e7ae0ee8151faa0b08431dbc"
+checksum = "43a12e47fdf1048d2f86d7798547377cad8689edbaf6571b19b9f2e5beb3fab7"
 dependencies = [
  "ark-bn254",
  "ark-ec",
@@ -1516,9 +1516,9 @@ dependencies = [
 
 [[package]]
 name = "solana-sdk-macro"
-version = "1.17.9"
+version = "1.17.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cf8c30dd6cad535154b9e143f3dfeab3bcac5fdfd0c732445012c1e2a0342981"
+checksum = "44b506d09af58e14f389823d4be966cc98f8c0aad5042f996122b5f3e09bef5a"
 dependencies = [
  "bs58 0.4.0",
  "proc-macro2",
@@ -1668,6 +1668,17 @@ name = "unicode-segmentation"
 version = "1.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1dd624098567895118886609431a7c3b8f516e41d30e0643f03d94592a147e36"
+
+[[package]]
+name = "update-player"
+version = "0.1.0"
+dependencies = [
+ "anchor-lang",
+ "bolt-lang",
+ "player",
+ "serde",
+ "solana-program",
+]
 
 [[package]]
 name = "version_check"

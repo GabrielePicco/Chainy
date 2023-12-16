@@ -9,6 +9,7 @@ chainy = "34CUrzPkzNS4hV3u8CXMsM73pXnv3FFPHCk1WkVBcRwY"
 player = "3XbWhap1xiE9zmUu2nqtv3NUVX1RVeXnvaMvUVaw3Lg5"
 system-movement = "DNbUAbXqL2C43xpBYhTZVv7GncoUb83CqWVhsj9BqWsJ"
 tile = "DfMmQL1ozAyHTkNMEDBXWi7CV8AutqXUcrGJR4BvwmUS"
+update-player = "Apno4oogfdGYF7U6qdrcXtj8E9rfoUCCcYjoXy3dKHHf"
 
 [registry]
 url = "https://api.apr.dev"

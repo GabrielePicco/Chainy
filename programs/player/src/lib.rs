@@ -10,8 +10,8 @@ pub mod player {
 
 #[account]
 #[bolt_account(component_id = "player")]
-#[derive(Copy)]
 pub struct Player {
     pub x: i64,
     pub y: i64,
+    pub player_id: Pubkey,
 }

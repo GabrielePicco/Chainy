@@ -5,6 +5,7 @@ import {Tile} from "../target/types/tile";
 import {Player} from "../target/types/player";
 import {SystemMovement} from "../target/types/system_movement";
 import {UpdatePlayer} from "../target/types/update_player";
+import {UpdateTile} from "../target/types/update_tile";
 import {
     createAddEntityInstruction, createApplyInstruction, createInitializeComponentInstruction,
     createInitializeNewWorldInstruction,
@@ -20,6 +21,14 @@ enum Direction {
     Up = "Up",
     Down = "Down",
 }
+
+enum Cell {
+    Empty = "Empty",
+    Tree = "Tree",
+    Trap = "Trap",
+    Egg = "Egg",
+}
+
 function serializeArgs(args: any = {}) {
     const jsonString = JSON.stringify(args);
     const encoder = new TextEncoder();
@@ -42,14 +51,18 @@ describe("chainy", () => {
     const playerComponent = anchor.workspace.Player as Program<Player>;
     const systemMovement = anchor.workspace.SystemMovement as Program<SystemMovement>;
     const updatePlayer = anchor.workspace.UpdatePlayer as Program<UpdatePlayer>;
+    const updateTile = anchor.workspace.UpdateTile as Program<UpdateTile>;
 
     // Constants used to test the program.
     const registryPda = FindWorldRegistryPda();
     const worldPda = FindWorldPda(new BN(0));
 
     let entityTile: PublicKey;
+    let entityTile2: PublicKey;
     let entityPlayer: PublicKey;
+    let entityPlayer2: PublicKey;
     let playerDataPda: PublicKey;
+    let playerDataPda2: PublicKey;
 
     it("InitializeWorldsRegistry", async () => {
         const registryPda = FindWorldRegistryPda();
@@ -93,12 +106,12 @@ describe("chainy", () => {
     it("Create a second Tile entity", async () => {
 
         const seed = "0,1";
-        entityTile = FindEntityPda(new BN(0), new BN(0), seed);
+        entityTile2 = FindEntityPda(new BN(0), new BN(0), seed);
 
         let createEntityIx = createAddEntityInstruction({
             world: worldPda,
             payer: provider.wallet.publicKey,
-            entity: entityTile,
+            entity: entityTile2,
         }, {extraSeed: seed});
 
         const tx = new anchor.web3.Transaction().add(createEntityIx);
@@ -134,6 +147,20 @@ describe("chainy", () => {
         await provider.sendAndConfirm(tx);
     });
 
+    it("Create a second entity for a Player", async () => {
+
+        entityPlayer2 = FindEntityPda(new BN(0), new BN(3));
+
+        let createEntityIx = createAddEntityInstruction({
+            world: worldPda,
+            payer: provider.wallet.publicKey,
+            entity: entityPlayer2,
+        });
+
+        const tx = new anchor.web3.Transaction().add(createEntityIx);
+        await provider.sendAndConfirm(tx);
+    });
+
     it("Attach a position component to the player entity", async () => {
 
         playerDataPda = FindComponentPda(playerComponent.programId, entityPlayer, "player");
@@ -149,10 +176,25 @@ describe("chainy", () => {
         await provider.sendAndConfirm(tx, [], {skipPreflight: true});
     });
 
+    it("Attach a position component to player 2 entity", async () => {
+
+        playerDataPda2 = FindComponentPda(playerComponent.programId, entityPlayer2, "player");
+
+        let initComponentIx = createInitializeComponentInstruction({
+            payer: provider.wallet.publicKey,
+            entity: entityPlayer2,
+            data: playerDataPda2,
+            componentProgram: playerComponent.programId,
+        });
+
+        const tx = new anchor.web3.Transaction().add(initComponentIx);
+        await provider.sendAndConfirm(tx, [], {skipPreflight: true});
+    });
+
     it("Execute the system movement on player1", async () => {
 
         const args = {
-            direction: Direction.Up,
+            direction: Direction.Left,
         };
 
         let applySystemIx = createApplyInstruction({
@@ -169,7 +211,43 @@ describe("chainy", () => {
                 playerDataPda
             );
 
-        expect(playerData.x.toNumber()).to.equal(0);
+        expect(playerData.x.toNumber()).to.lt(0);
+        expect(playerData.y.toNumber()).to.equal(0);
+    });
+
+    it("Execute the system movement on player2", async () => {
+
+        const args = {
+            direction: Direction.Right,
+        };
+
+        let applySystem1Ix = createApplyInstruction({
+            componentProgram: playerComponent.programId,
+            boltSystem: systemMovement.programId,
+            boltComponent: playerDataPda2,
+        }, { args: serializeArgs(args) });
+
+        const args2 = {
+            direction: Direction.Up,
+        };
+
+        let applySystem2Ix = createApplyInstruction({
+            componentProgram: playerComponent.programId,
+            boltSystem: systemMovement.programId,
+            boltComponent: playerDataPda2,
+        }, { args: serializeArgs(args2) });
+
+        const tx = new anchor.web3.Transaction()
+            .add(applySystem1Ix)
+            .add(applySystem2Ix);
+        await provider.sendAndConfirm(tx, [], {skipPreflight: true});
+
+        const playerData =
+            await playerComponent.account.player.fetch(
+                playerDataPda2
+            );
+
+        expect(playerData.x.toNumber()).to.gt(0);
         expect(playerData.y.toNumber()).to.gt(0);
     });
 
@@ -193,8 +271,38 @@ describe("chainy", () => {
                 playerDataPda
             );
 
-        expect(playerData.x.toNumber()).to.equal(0);
-        expect(playerData.y.toNumber()).to.gt(0);
+        expect(playerData.playerId.toBase58()).to.equal(provider.wallet.publicKey.toBase58());
+    });
+
+    it("Plant a tree in 0,1 on Tile 0, 0", async () => {
+
+        const args = {
+            cell: Cell.Tree,
+            x: 0,
+            y: 1,
+        };
+
+        let tileDataPda = FindComponentPda(tileComponent.programId, entityTile, "tile");
+
+        let updateTileIx = createApplyInstruction({
+            componentProgram: tileComponent.programId,
+            boltSystem: updateTile.programId,
+            boltComponent: tileDataPda,
+        }, { args: serializeArgs(args) });
+
+        const tx = new anchor.web3.Transaction().add(updateTileIx);
+        await provider.sendAndConfirm(tx, [], {skipPreflight: true});
+
+        const tileData =
+            await tileComponent.account.tile.fetch(
+                tileDataPda
+            );
+
+        expect(tileData.grid.cells[0][1]['tree']).to.not.equal(undefined);
+        expect(tileData.grid.cells[0][1]['empty']).to.equal(undefined);
+
+        expect(tileData.grid.cells[0][0]['tree']).to.equal(undefined);
+        expect(tileData.grid.cells[0][0]['empty']).to.not.equal(undefined);
     });
 
 });

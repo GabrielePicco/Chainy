@@ -6,19 +6,35 @@ declare_id!("DNbUAbXqL2C43xpBYhTZVv7GncoUb83CqWVhsj9BqWsJ");
 #[system]
 #[program]
 pub mod system_movement {
+    use player::Facing;
     use super::*;
 
     pub fn execute(ctx: Context<Component>, args_p: Vec<u8>) -> Result<Position> {
         let args = parse_args::<Args>(&args_p);
 
-        let clock = Clock::get()?;
-        let delta = 1 + (clock.unix_timestamp.unsigned_abs() % 6) as i64;
+        //let clock = Clock::get()?;
+        let delta = 3;//1 + (clock.unix_timestamp.unsigned_abs() % 6) as i64;
 
         let (dx, dy) = match args.direction {
             Direction::Left => (-delta, 0),
             Direction::Right => (delta, 0),
             Direction::Up => (0, delta),
             Direction::Down => (0, -delta),
+        };
+
+        match args.direction {
+            Direction::Down => {
+               ctx.accounts.position.facing = Facing::Down;
+            },
+            Direction::Up => {
+                ctx.accounts.position.facing = Facing::Up;
+            },
+            Direction::Right => {
+                ctx.accounts.position.facing = Facing::Right;
+            },
+            Direction::Left => {
+                ctx.accounts.position.facing = Facing::Left;
+            },
         };
 
         ctx.accounts.position.x += dx;

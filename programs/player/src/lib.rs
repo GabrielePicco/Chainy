@@ -15,6 +15,7 @@ pub struct Player {
     pub y: i64,
     pub facing: Facing,
     pub player_id: Pubkey,
+    pub alive: bool,
 }
 
 #[derive(InitSpace, Copy, Clone, Debug, AnchorSerialize, AnchorDeserialize, PartialEq)]

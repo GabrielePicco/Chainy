@@ -255,6 +255,7 @@ describe("chainy", () => {
 
         const args = {
             publickey: provider.wallet.publicKey.toBase58(),
+            alive: true,
         };
 
         let applySystemIx = createApplyInstruction({
@@ -272,6 +273,30 @@ describe("chainy", () => {
             );
 
         expect(playerData.playerId.toBase58()).to.equal(provider.wallet.publicKey.toBase58());
+    });
+
+    it("Update the player account to alive = false", async () => {
+
+        const args = {
+            publickey: provider.wallet.publicKey.toBase58(),
+            alive: false,
+        };
+
+        let applySystemIx = createApplyInstruction({
+            componentProgram: playerComponent.programId,
+            boltSystem: updatePlayer.programId,
+            boltComponent: playerDataPda,
+        }, { args: serializeArgs(args) });
+
+        const tx = new anchor.web3.Transaction().add(applySystemIx);
+        await provider.sendAndConfirm(tx);
+
+        const playerData =
+            await playerComponent.account.player.fetch(
+                playerDataPda
+            );
+
+        expect(playerData.alive).to.equal(false);
     });
 
     it("Plant a tree in 0,1 on Tile 0, 0", async () => {
@@ -304,6 +329,22 @@ describe("chainy", () => {
         expect(tileData.grid.cells[0][0]['tree']).to.equal(undefined);
         expect(tileData.grid.cells[0][0]['empty']).to.not.equal(undefined);
     });
+    //
+    // it("Create a new entity for a Tile", async () => {
+    //
+    //     const seed = "0,-4";
+    //     entityTile = FindEntityPda(new BN(0), new BN(0), seed);
+    //
+    //     let createEntityIx = createAddEntityInstruction({
+    //         world: worldPda,
+    //         payer: provider.wallet.publicKey,
+    //         entity: entityTile,
+    //     }, {extraSeed: seed});
+    //
+    //     const tx = new anchor.web3.Transaction().add(createEntityIx);
+    //     const txSig = await provider.sendAndConfirm(tx, [], {skipPreflight: true});
+    //     console.log(txSig);
+    // });
 
 });
 

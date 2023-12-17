@@ -19,12 +19,8 @@ pub mod update_player {
                 ProgramError::Custom(err as u32)
             })?;
 
-        // Fails id the player_id is different from the default public key
-        if ctx.accounts.player.player_id != Pubkey::default() {
-            return Err(ProgramError::Custom(1).into());
-        }
-
         ctx.accounts.player.player_id = pk;
+        ctx.accounts.player.alive = args.alive;
 
         Ok(ctx.accounts.player)
     }
@@ -40,4 +36,5 @@ pub struct Component<'info> {
 #[derive(BoltSerialize, BoltDeserialize)]
 struct Args {
     publickey: String,
+    alive: bool,
 }
